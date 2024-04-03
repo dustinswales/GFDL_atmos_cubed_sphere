@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|Repro|MinSizeRel|RelWithDebInfo
 endif()
 message(STATUS "Setting build type to '${CMAKE_BUILD_TYPE}'.")
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU)$")
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|NVHPC)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_Fortran_COMPILER_ID}")
 endif()
 
@@ -34,6 +34,7 @@ option(GFS_TYPES   "Enable compiler definition -DGFS_TYPES"                OFF)
 option(use_WRTCOMP "Enable compiler definition -Duse_WRTCOMP"              OFF)
 option(INTERNAL_FILE_NML     "Enable compiler definition -DINTERNAL_FILE_NML"      ON)
 option(ENABLE_QUAD_PRECISION "Enable compiler definition -DENABLE_QUAD_PRECISION"  ON)
+option(NO_QUAD_PRECISION     "Disable quadruple precision -DNO_QUAD_PRECISION" OFF)
 
 find_package(MPI REQUIRED)
 if(OPENMP)
@@ -165,6 +166,12 @@ endif()
 
 if(OPENMP)
   list(APPEND fv3_defs OPENMP)
+endif()
+
+if(NO_QUAD_PRECISION)
+  message(STATUS "Compile atmos_cubed_sphere w/o quadruple precision when using Nvidia.")
+  list(APPEND fv3_defs NO_QUAD_PRECISION) #DJS2024 THIS ISN'T WORKING!!!!!!
+  add_definitions(-DNO_QUAD_PRECISION)
 endif()
 
 # Obtain compiler-specific flags

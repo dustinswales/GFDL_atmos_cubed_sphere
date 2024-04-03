@@ -94,7 +94,7 @@
  implicit none
  private
  logical:: symm_grid
-#ifdef NO_QUAD_PRECISION
+#ifdef __PGI
 ! 64-bit precision (kind=8)
  integer, parameter:: f_p = selected_real_kind(15)
 #else

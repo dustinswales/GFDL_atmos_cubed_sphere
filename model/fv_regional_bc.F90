@@ -66,7 +66,9 @@ module fv_regional_mod
    use fv_eta_mod,        only: get_eta_level
    use fms_mod,           only: check_nml_error
    use boundary_mod,      only: fv_nest_BC_type_3D
-
+#ifdef __PGI
+   use iso_c_binding,     only: c_int32_t, c_int64_t
+#endif   
    implicit none
 
       private
@@ -252,8 +254,27 @@ module fv_regional_mod
       integer :: a_step, p_step, k_step, n_step
 !
       logical :: data_source_fv3gfs, lbc_source_fv3gfs
+#ifdef __PGI
+      interface shiftr
+         module procedure shiftr_sp
+         module procedure shiftr_dp
+      end interface shiftr
+#endif
 contains
 
+#ifdef __PGI
+  elemental integer(c_int32_t) function shiftr_sp( I , shift )
+    integer(c_int32_t), intent(in) :: I 
+    integer, intent(in) :: shift
+    shiftr_sp = rshift( I, shift )
+  end function shiftr_sp
+
+  elemental integer(c_int64_t) function shiftr_dp( I , shift )
+    integer(c_int64_t), intent(in) :: I 
+    integer, intent(in) :: shift
+    shiftr_dp = rshift( I, shift )
+  end function shiftr_dp
+#endif
 
 !-----------------------------------------------------------------------
 !
@@ -269,7 +290,9 @@ contains
 !*** The compiler must use IEEE-standard floating point for this to work
 !-----------------------------------------------------------------------
 !
+#ifndef __PGI
     use, intrinsic :: iso_c_binding, only: c_int32_t, c_int64_t
+#endif
     implicit none
 !
 !-----------------------------------------------------------------------
@@ -277,7 +300,9 @@ contains
 ! supported in older compilers.
 !-----------------------------------------------------------------------
 !
+#ifndef __PGI
     intrinsic shiftr, transfer, iand ! <--- declare intrinsic to help older compilers
+#endif
 !
 !-----------------------------------------------------------------------
 ! Use value-based argument passing instead of reference-based to avoid
