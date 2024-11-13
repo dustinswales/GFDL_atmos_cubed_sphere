@@ -218,6 +218,9 @@ use coarse_grained_diagnostics_mod, only: fv_coarse_diag_init, fv_coarse_diag
 use coarse_grained_restart_files_mod, only: fv_coarse_restart_init
 use diag_manager_mod,   only: send_data
 
+! CCPP Physics modules
+use module_gfdlmp_param, only: gfdmp_cfg => cfg
+
 implicit none
 private
 
@@ -350,6 +353,9 @@ contains
    Time_step_atmos = Time_step
    call get_time (Time_step_atmos, sec)
    dt_atmos = real(sec)
+
+!----- Call CCPP physics register routines
+   call gfdmp_cfg%register()
 
 !----- initialize FV dynamical core -----
    !NOTE do we still need the second file_exist call?
